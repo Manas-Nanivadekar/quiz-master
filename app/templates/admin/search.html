@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Search - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Search</h2>
+        </div>
+        <div class="col-auto">
+            <a href="{{ url_for('admin.stats') }}" class="btn btn-outline-success me-2">
+                <i class="fas fa-chart-line"></i> Statistics
+            </a>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin.search') }}">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-7">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="query" placeholder="Search..." value="{{ query }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="category" id="category-all" value="all" {% if category == 'all' %}checked{% endif %}>
+                            <label class="form-check-label" for="category-all">All</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="category" id="category-users" value="users" {% if category == 'users' %}checked{% endif %}>
+                            <label class="form-check-label" for="category-users">Users</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="category" id="category-subjects" value="subjects" {% if category == 'subjects' %}checked{% endif %}>
+                            <label class="form-check-label" for="category-subjects">Subjects</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="category" id="category-quizzes" value="quizzes" {% if category == 'quizzes' %}checked{% endif %}>
+                            <label class="form-check-label" for="category-quizzes">Quizzes</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if results %}
+        {% if category in ['all', 'users'] and results.users %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Users</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Qualification</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in results.users %}
+                                    <tr>
+                                        <td>{{ user.full_name }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.qualification }}</td>
+                                        <td>
+                                            <a href="{{ url_for('admin.view_user', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-user"></i> View Profile
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if category in ['all', 'subjects'] and results.subjects %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Subjects</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Chapters</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject in results.subjects %}
+                                    <tr>
+                                        <td>{{ subject.name }}</td>
+                                        <td>{{ subject.description }}</td>
+                                        <td>{{ subject.chapters|length }}</td>
+                                        <td>
+                                            <a href="{{ url_for('admin.edit_subject', id=subject.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if category in ['all', 'chapters'] and results.chapters %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Chapters</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Chapter</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for chapter in results.chapters %}
+                                    <tr>
+                                        <td>{{ chapter.subject.name }}</td>
+                                        <td>{{ chapter.name }}</td>
+                                        <td>{{ chapter.description }}</td>
+                                        <td>
+                                            <a href="{{ url_for('admin.edit_chapter', id=chapter.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if category in ['all', 'quizzes'] and results.quizzes %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Quizzes</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Chapter</th>
+                                    <th>Date</th>
+                                    <th>Duration</th>
+                                    <th>Questions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in results.quizzes %}
+                                    <tr>
+                                        <td>{{ quiz.chapter.subject.name }}</td>
+                                        <td>{{ quiz.chapter.name }}</td>
+                                        <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ quiz.duration }} minutes</td>
+                                        <td>{{ quiz.questions|length }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <a href="{{ url_for('admin.manage_questions', quiz_id=quiz.id) }}" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-list"></i> Questions
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if not results.users and not results.subjects and not results.chapters and not results.quizzes %}
+            <div class="alert alert-info">
+                <p>No results found for "{{ query }}" in the selected category.</p>
+            </div>
+        {% endif %}
+    {% elif query %}
+        <div class="alert alert-info">
+            <p>No results found for "{{ query }}" in the selected category.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

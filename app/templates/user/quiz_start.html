@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Start Quiz - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>{{ quiz.chapter.subject.name }} - {{ quiz.chapter.name }}</h3>
+            </div>
+            <div class="card-body">
+                <h4>Quiz Details</h4>
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item">
+                        <strong>Duration:</strong> {{ quiz.duration }} minutes
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Total Questions:</strong> {{ quiz.questions|length }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Date:</strong> {{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}
+                    </li>
+                    {% if quiz.remarks %}
+                        <li class="list-group-item">
+                            <strong>Remarks:</strong> {{ quiz.remarks }}
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <div class="alert alert-info">
+                    <h5>Instructions:</h5>
+                    <ul>
+                        <li>The quiz will start as soon as you click the "Start Quiz" button.</li>
+                        <li>You will have {{ quiz.duration }} minutes to complete the quiz.</li>
+                        <li>Each question has 4 options with only one correct answer.</li>
+                        <li>You cannot go back to previous questions once answered.</li>
+                        <li>Make sure you have a stable internet connection.</li>
+                    </ul>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('user.take_quiz', quiz_id=quiz.id) }}" class="btn btn-primary btn-lg">
+                        Start Quiz
+                    </a>
+                    <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

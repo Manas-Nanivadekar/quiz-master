@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Taking Quiz - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3>{{ quiz.chapter.subject.name }} - {{ quiz.chapter.name }}</h3>
+                <div class="timer">
+                    Time Remaining: <span id="timer" class="badge bg-primary"></span>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="quizForm">
+                    {% for question in quiz.questions %}
+                        <div class="mb-4">
+                            <h5>Question {{ loop.index }}:</h5>
+                            <p class="lead">{{ question.question_text }}</p>
+                            
+                            <div class="list-group">
+                                {% for i in range(1, 5) %}
+                                    {% set option = question|attr('option_' ~ i) %}
+                                    <label class="list-group-item">
+                                        <input type="radio" name="question_{{ question.id }}" value="{{ i }}" class="form-check-input me-2" required>
+                                        {{ option }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Quiz</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let duration = {{ quiz.duration }};
+        let timeLeft = duration * 60;
+        const timerElement = document.getElementById('timer');
+        const quizForm = document.getElementById('quizForm');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                quizForm.submit();
+            }
+            timeLeft--;
+        }
+
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        // Warn before leaving the page
+        window.onbeforeunload = function() {
+            return "Are you sure you want to leave? Your quiz progress will be lost.";
+        };
+
+        // Remove warning when submitting the form
+        quizForm.onsubmit = function() {
+            window.onbeforeunload = null;
+        };
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Question - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Edit Question</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="question_text" class="form-label">Question</label>
+                        <textarea class="form-control" id="question_text" name="question_text" rows="3" required>{{ question.question_text }}</textarea>
+                    </div>
+                    
+                    {% for i in range(1, 5) %}
+                        <div class="mb-3">
+                            <label for="option_{{ i }}" class="form-label">Option {{ i }}</label>
+                            <input type="text" class="form-control" id="option_{{ i }}" name="option_{{ i }}" 
+                                  value="{{ question|attr('option_' ~ i) }}" required>
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Correct Answer</label>
+                        <div class="list-group">
+                            {% for i in range(1, 5) %}
+                                <label class="list-group-item">
+                                    <input type="radio" name="correct_option" value="{{ i }}" 
+                                           class="form-check-input me-2" 
+                                           {% if i == question.correct_option %}checked{% endif %} required>
+                                    Option {{ i }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            Update Question
+                        </button>
+                        <a href="{{ url_for('admin.manage_questions', quiz_id=question.quiz_id) }}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Score - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Quiz Results</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h4>{{ score.quiz.chapter.subject.name }} - {{ score.quiz.chapter.name }}</h4>
+                    <div class="display-1 text-{{ 'success' if score.score/score.total_questions >= 0.6 else 'danger' }}">
+                        {{ score.score }}/{{ score.total_questions }}
+                    </div>
+                    <p class="lead">
+                        Percentage: {{ (score.score/score.total_questions * 100)|round(2) }}%
+                    </p>
+                </div>
+
+                <div class="row text-center">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Completion Time</h5>
+                                <p class="card-text">{{ score.completion_time }} minutes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Attempt Date</h5>
+                                <p class="card-text">{{ score.attempt_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('user.dashboard') }}" class="btn btn-primary">
+                        Back to Dashboard
+                    </a>
+                    <a href="{{ url_for('user.view_scores') }}" class="btn btn-outline-secondary">
+                        View All Scores
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

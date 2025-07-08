@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Welcome, {{ current_user.full_name }}!</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Upcoming Quizzes</h4>
+            </div>
+            <div class="card-body">
+                {% if upcoming_quizzes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Chapter</th>
+                                    <th>Date</th>
+                                    <th>Duration</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in upcoming_quizzes %}
+                                    <tr>
+                                        <td>{{ quiz.chapter.subject.name }}</td>
+                                        <td>{{ quiz.chapter.name }}</td>
+                                        <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ quiz.duration }} minutes</td>
+                                        <td>
+                                            <a href="{{ url_for('user.view_quiz', quiz_id=quiz.id) }}" class="btn btn-sm btn-primary">
+                                                View Quiz
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">No upcoming quizzes available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- New Section for Available Quizzes -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Available Quizzes</h4>
+            </div>
+            <div class="card-body">
+                {% if available_quizzes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Chapter</th>
+                                    <th>Date</th>
+                                    <th>Duration</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in available_quizzes %}
+                                    <tr>
+                                        <td>{{ quiz.chapter.subject.name }}</td>
+                                        <td>{{ quiz.chapter.name }}</td>
+                                        <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ quiz.duration }} minutes</td>
+                                        <td>
+                                            <a href="{{ url_for('user.view_quiz', quiz_id=quiz.id) }}" class="btn btn-sm btn-success">
+                                                Take Quiz
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">No quizzes available to take right now.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4>My Recent Scores</h4>
+            </div>
+            <div class="card-body">
+                {% if completed_quizzes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Chapter</th>
+                                    <th>Score</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score in completed_quizzes %}
+                                    <tr>
+                                        <td>{{ score.quiz.chapter.subject.name }}</td>
+                                        <td>{{ score.quiz.chapter.name }}</td>
+                                        <td>{{ score.score }}/{{ score.total_questions }}</td>
+                                        <td>{{ score.attempt_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">You haven't taken any quizzes yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Available Subjects</h4>
+            </div>
+            <div class="card-body">
+                {% if subjects %}
+                    <div class="list-group">
+                        {% for subject in subjects %}
+                            <div class="list-group-item">
+                                <h5 class="mb-1">{{ subject.name }}</h5>
+                                <p class="mb-1">{{ subject.description }}</p>
+                                <small>{{ subject.chapters|length }} chapters available</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center">No subjects available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if completed_quizzes %}
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Performance Chart</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [{% for score in completed_quizzes %}
+                        '{{ score.quiz.chapter.name }}',
+                    {% endfor %}],
+                    datasets: [{
+                        label: 'Score Percentage',
+                        data: [{% for score in completed_quizzes %}
+                            {{ (score.score / score.total_questions * 100)|round(2) }},
+                        {% endfor %}],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    {% endblock %}
+{% endif %}
+{% endblock %} 

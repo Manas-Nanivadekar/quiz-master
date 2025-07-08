@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Admin Dashboard</h2>
+    <div>
+        <a href="{{ url_for('admin.search') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-search"></i> Search
+        </a>
+        <a href="{{ url_for('admin.stats') }}" class="btn btn-outline-success me-2">
+            <i class="fas fa-chart-line"></i> Statistics
+        </a>
+        <a href="{{ url_for('admin.new_subject') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Subject
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Subjects</h4>
+            </div>
+            <div class="card-body">
+                {% if subjects %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Chapters</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject in subjects %}
+                                    <tr>
+                                        <td>{{ subject.name }}</td>
+                                        <td>{{ subject.description }}</td>
+                                        <td>{{ subject.chapters|length }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('admin.edit_subject', id=subject.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{{ url_for('admin.new_chapter', subject_id=subject.id) }}" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-plus"></i> Chapter
+                                                </a>
+                                                <a href="{{ url_for('admin.delete_subject', id=subject.id) }}" class="btn btn-sm btn-outline-danger" 
+                                                   onclick="return confirm('Are you sure you want to delete this subject?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% if subject.chapters %}
+                                        {% for chapter in subject.chapters %}
+                                            <tr class="table-light">
+                                                <td class="ps-4">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                    {{ chapter.name }}
+                                                </td>
+                                                <td>{{ chapter.description }}</td>
+                                                <td>{{ chapter.quizzes|length }} quizzes</td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a href="{{ url_for('admin.edit_chapter', id=chapter.id) }}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="{{ url_for('admin.new_quiz', id=chapter.id) }}" class="btn btn-sm btn-outline-success">
+                                                            <i class="fas fa-plus"></i> Quiz
+                                                        </a>
+                                                        <a href="{{ url_for('admin.delete_chapter', id=chapter.id) }}" 
+                                                           class="btn btn-sm btn-outline-danger"
+                                                           onclick="return confirm('Are you sure you want to delete this chapter?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% if chapter.quizzes %}
+                                                {% for quiz in chapter.quizzes %}
+                                                    <tr class="table-light">
+                                                        <td class="ps-5">
+                                                            <i class="fas fa-calendar"></i>
+                                                            Quiz: {{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}
+                                                        </td>
+                                                        <td>{{ quiz.duration }} minutes</td>
+                                                        <td>{{ quiz.questions|length }} questions</td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" 
+                                                                   class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+                                                                <a href="{{ url_for('admin.manage_questions', quiz_id=quiz.id) }}" 
+                                                                   class="btn btn-sm btn-outline-info">
+                                                                    <i class="fas fa-list"></i> Questions
+                                                                </a>
+                                                                <a href="{{ url_for('admin.make_quiz_available', quiz_id=quiz.id) }}" 
+                                                                   class="btn btn-sm btn-warning">
+                                                                    Make Available
+                                                                </a>
+                                                                <a href="{{ url_for('admin.delete_quiz', quiz_id=quiz.id) }}" 
+                                                                   class="btn btn-sm btn-outline-danger"
+                                                                   onclick="return confirm('Are you sure you want to delete this quiz?')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">No subjects found. Add one to get started!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Registered Users</h4>
+            </div>
+            <div class="card-body">
+                {% if users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.full_name }}</td>
+                                        <td>{{ user.email }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">No registered users yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
